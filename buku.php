@@ -1,76 +1,62 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Bootstrap demo</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-  </head>
-  <body>
-    <nav class="navbar navbar-expand-lg bg-primary" data-bs-theme="dark">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="#">Perpustakaan</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav">
-        <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="buku.php">Home</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#">Buku</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#">Anggota</a>
-        </li>
-        <li class="nav-item">
-        </li>
-      </ul>
-    </div>
-  </div>
-</nav>
-<div class="container">
-        <h1>Data Buku</h1>
-        <a class="btn btn-success mb-3" href="form.php">Input Buku</a>
-        <table class="table table-bordered table-striped">
-            <tr>
-                <th>No</th>
-                <th>Kode Buku</th>
-                <th>Judul</th>
-                <th>Pengarang</th>
-                <th>Penerbit</th>
-                <th>Tahun</th>
-                <th>Stok</th>
-                <th>Sampul</th>
-                <th>Aksi</th>
-            </tr>  
-            <?php
-              require "koneksi.php";
-              $sql ="SELECT * FROM buku";
-              $hasil = $koneksi ->query($sql);
-              $no = 1;
-              while($row = $hasil->fetch_assoc()){
-              ?>
-            <tr>
-              <td><?=$no++ ?></td>
-              <td><?= $row['kode_buku'] ?></td>
-              <td><?= $row['judul'] ?></td>
-              <td><?= $row['pengarang'] ?></td>
-              <td><?= $row['penerbit'] ?></td>
-              <td><?= $row['tahun_terbit'] ?></td>
-              <td><?= $row['stok'] ?></td>
-              <td>
-                <img src="sampul/<?= $row['sampul'] ?>" width="100px" alt="">
-              </td>
-              <td>
-                <a href="edit.php?id=<?= $row['id_buku'] ?> "class="btn btn-warning btn-sm">Edit</a>
-                <a onclick="return confirm('apakah anda yakin untuk menghapus data ini ? ')" href="hapus.php?id=<?= $row['id_buku'] ?>" class="btn btn-danger btn-sm">Hapus</a>
-              </td>
-            </tr>
-            <?php } ?>
-        </table>
-    </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
-  </body>
-</html>
+<?php
+require 'koneksi.php';
+$judul_halaman = 'Data Buku';
+$menu_aktif = 'buku';
+require 'layout/header.php';
+
+$hasil = $koneksi->query("SELECT * FROM buku ORDER BY id_buku ASC");
+$no = 1;
+?>
+
+<h1 class="mb-3">Data Buku</h1>
+<a class="btn btn-success mb-3" href="form.php">+ Input Buku</a>
+
+<table class="table table-bordered table-striped align-middle">
+    <thead class="table-light">
+        <tr>
+            <th>No</th>
+            <th>Kode Buku</th>
+            <th>Judul</th>
+            <th>Pengarang</th>
+            <th>Penerbit</th>
+            <th>Tahun</th>
+            <th>Stok</th>
+            <th>Sampul</th>
+            <th>Aksi</th>
+        </tr>
+    </thead>
+    <tbody>
+    <?php while ($row = $hasil->fetch_assoc()) : ?>
+        <tr>
+            <td><?= $no++ ?></td>
+            <td><?= htmlspecialchars($row['kode_buku']) ?></td>
+            <td><?= htmlspecialchars($row['judul']) ?></td>
+            <td><?= htmlspecialchars($row['pengarang']) ?></td>
+            <td><?= htmlspecialchars($row['penerbit']) ?></td>
+            <td><?= $row['tahun_terbit'] ?></td>
+            <td><?= $row['stok'] ?></td>
+            <td>
+                <?php if (!empty($row['sampul'])) : ?>
+                    <img src="sampul/<?= htmlspecialchars($row['sampul']) ?>"
+                         width="80" alt="Sampul">
+                <?php endif; ?>
+            </td>
+            <td>
+                <a href="edit.php?id=<?= $row['id_buku'] ?>"
+                   class="btn btn-warning btn-sm">Edit</a>
+                <a href="hapus.php?id=<?= $row['id_buku'] ?>"
+                   class="btn btn-danger btn-sm"
+                   onclick="return confirm('Yakin menghapus data ini?')">Hapus</a>
+            </td>
+        </tr>
+    <?php endwhile; ?>
+
+    <?php if ($hasil->num_rows == 0) : ?>
+        <tr>
+            <td colspan="9" class="text-center">Belum ada data buku.</td>
+        </tr>
+    <?php endif; ?>
+    </tbody>
+</table>
+
+<?php require 'layout/footer.php'; ?>
